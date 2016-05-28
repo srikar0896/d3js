@@ -1,0 +1,86 @@
+<html>
+<head>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<title>India Map Example</title>
+<style>
+.area{
+opacity:0.5;
+}
+.area:hover{
+opacity:0.9;
+}
+
+.heading{
+font-family: 'Roboto', sans-serif;
+color:#b0bec5;
+font-size:80px;
+padding-left:170px;
+margin-top:-100px;}
+</style>
+<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+</head>
+<body>
+<div style="width:400px;height:70px;position:absolute;float:left;margin-top:23%;">
+</div>
+<script>
+var w=1000,
+	h=800;
+	
+var canvas=d3.select("body")
+			.append("svg")
+			.attr("width",w)
+			.attr("height",h);
+			
+d3.json("sweden.geojson",function(data){
+
+var group=canvas.selectAll("g")
+			.data(data.features)
+			.enter()
+			.append("g");
+			
+var colorScale=d3.scale.category20();
+
+var projection=d3.geo.mercator().scale(2600).translate([100,3800]);
+var path=d3.geo.path().projection(projection);
+			
+var areas=group.append("path")
+			.attr("d",path)
+			.attr("fill",function(d,i){return colorScale(i); })
+			.attr("class","area");
+			/*.on("mouseover", function(d){
+				d3.select(this).attr("visibility", "hidden")})
+			.on("mouseout", function(d){
+				d3.select(this).attr("visibility", "visible")});
+			*/
+			
+group.append("text")
+			.attr("x",function(d){return path.centroid(d)[0]; })
+			.attr("y",function(d){return path.centroid(d)[1]; })
+			.attr("text-anchor","middle")
+			.attr("visibility","hidden")
+			.text(function(d){return d.properties.NAME_1; })
+			.attr("class","text");
+
+var heading=d3.select("div")
+			.append("h1")
+			.attr("class","heading");
+
+var headingText=heading.append("text");
+
+d3.select(".heading").style("visibility","hidden");
+
+areas.on("mouseover", function(d) {
+    
+      headingText.text(d.properties.NAME_1);
+      headingText.style("visibility", "visible");
+    }
+  )
+  .on("mouseout", function(d) {
+      headingText.style("visibility", "hidden");
+     });
+			
+
+});
+</script>
+</body>
+</html>
